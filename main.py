@@ -14,12 +14,15 @@ df = pd.json_normalize(Data_Import.df)
 print(df.head())
 
 # Create features
-df['Ma_3'] = df['c'].shift(1).rolling(window=3).mean()
+df['Ma_50'] = df['c'].shift(1).rolling(window=50).mean()
 df['Change'] = df['o'] - df['c']
 df['Range'] = df['h'] - df['l']
 
 # Create model
-X = df[['Ma_3', 'Change', 'Range']]
+x = df[['Ma_50', 'Change', 'Range']]
+print(x.head())
+imp = SimpleImputer(missing_values=np.nan, strategy='most_frequent')
+X = imp.fit_transform(x)
 Y = np.where(df['c'].shift(-1) > df['c'], 1, 0)
 
 # Split dset
