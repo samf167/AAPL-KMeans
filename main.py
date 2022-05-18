@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.cluster import KMeans
+from sklearn.cluster import spectral_clustering
 from sklearn.impute import SimpleImputer
 
 import Data_Import
@@ -14,12 +15,12 @@ df = pd.json_normalize(Data_Import.df)
 print(df.head())
 
 # Create features
-df['Ma_50'] = df['c'].shift(1).rolling(window=50).mean()
+df['Ma_10'] = df['c'].shift(1).rolling(window=10).mean()
 df['Change'] = df['o'] - df['c']
 df['Range'] = df['h'] - df['l']
 
 # Create model
-x = df[['Ma_50', 'Change', 'Range']]
+x = df[['Change', 'Range']]
 print(x.head())
 imp = SimpleImputer(missing_values=np.nan, strategy='most_frequent')
 X = imp.fit_transform(x)
@@ -38,7 +39,7 @@ X_test = X[split:]
 Y_test = Y[split:]
 
 # Setup and test model
-model = KMeans(n_clusters=2)
+model = KMeans(n_clusters=2, n_init=20, algorithm='elkan')
 p = model.fit(X_train, Y_train)
 
 # Report Accuracy
@@ -47,7 +48,7 @@ accuracy_test = accuracy_score(Y_test, p.predict(X_test))
 
 print('\nTrain Accuracy:{: .2f}%'.format(accuracy_train*100))
 print('Test Accuracy:{: .2f}%'.format(accuracy_test*100))
-
+print(p.predict(X_test))
 
 
 
